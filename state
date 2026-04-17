@@ -1,0 +1,93 @@
+# state.py
+from abc import ABC, abstractmethod
+
+class OrderState(ABC):
+    @abstractmethod
+    def next(self, order) -> None:
+        pass
+
+    @abstractmethod
+    def cancel(self, order) -> None:
+        pass
+
+    @abstractmethod
+    def status(self) -> str:
+        pass
+
+class NewOrder(OrderState):
+    def next(self, order) -> None:
+        order.state = PaidOrder()
+        print("Order moved to PAID")
+
+    def cancel(self, order) -> None:
+        order.state = CancelledOrder()
+        print("Order cancelled")
+
+    def status(self) -> str:
+        return "NEW"
+
+class PaidOrder(OrderState):
+    def next(self, order) -> None:
+        order.state = ShippedOrder()
+        print("Order moved to SHIPPED")
+
+    def cancel(self, order) -> None:
+        order.state = CancelledOrder()
+        print("Order cancelled (refund issued)")
+
+    def status(self) -> str:
+        return "PAID"
+
+class ShippedOrder(OrderState):
+    def next(self, order) -> None:
+        order.state = DeliveredOrder()
+        print("Order delivered")
+
+    def cancel(self, order) -> None:
+        print("Cannot cancel shipped order")
+
+    def status(self) -> str:
+        return "SHIPPED"
+
+class DeliveredOrder(OrderState):
+    def next(self, order) -> None:
+        print("Order already delivered")
+
+    def cancel(self, order) -> None:
+        print("Cannot cancel delivered order")
+
+    def status(self) -> str:
+        return "DELIVERED"
+
+class CancelledOrder(OrderState):
+    def next(self, order) -> None:
+        print("Cancelled order cannot move forward")
+
+    def cancel(self, order) -> None:
+        print("Already cancelled")
+
+    def status(self) -> str:
+        return "CANCELLED"
+
+class Order:
+    def __init__(self):
+        self.state = NewOrder()
+
+    def next(self):
+        self.state.next(self)
+
+    def cancel(self):
+        self.state.cancel(self)
+
+    def get_status(self):
+        return self.state.status()
+
+if __name__ == "__main__":
+    order = Order()
+    print(f"Status: {order.get_status()}")
+    order.next()
+    print(f"Status: {order.get_status()}")
+    order.next()
+    print(f"Status: {order.get_status()}")
+    order.cancel()
+    order.next()
