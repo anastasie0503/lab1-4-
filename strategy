@@ -1,0 +1,45 @@
+# strategy.py
+from abc import ABC, abstractmethod
+
+class PaymentStrategy(ABC):
+    @abstractmethod
+    def pay(self, amount: float) -> str:
+        pass
+
+class CreditCardPayment(PaymentStrategy):
+    def __init__(self, card_number: str):
+        self.card_number = card_number
+
+    def pay(self, amount: float) -> str:
+        return f"Paid ${amount} via Credit Card {self.card_number[-4:]}"
+
+class PayPalPayment(PaymentStrategy):
+    def __init__(self, email: str):
+        self.email = email
+
+    def pay(self, amount: float) -> str:
+        return f"Paid ${amount} via PayPal ({self.email})"
+
+class CryptoPayment(PaymentStrategy):
+    def pay(self, amount: float) -> str:
+        return f"Paid ${amount} via Bitcoin"
+
+class Checkout:
+    def __init__(self, strategy: PaymentStrategy):
+        self._strategy = strategy
+
+    def set_strategy(self, strategy: PaymentStrategy):
+        self._strategy = strategy
+
+    def execute_payment(self, amount: float) -> str:
+        return self._strategy.pay(amount)
+
+if __name__ == "__main__":
+    checkout = Checkout(CreditCardPayment("1234-5678-9876-5432"))
+    print(checkout.execute_payment(99.99))
+
+    checkout.set_strategy(PayPalPayment("user@example.com"))
+    print(checkout.execute_payment(49.95))
+
+    checkout.set_strategy(CryptoPayment())
+    print(checkout.execute_payment(299.99))
