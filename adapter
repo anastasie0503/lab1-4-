@@ -1,0 +1,22 @@
+# adapter.py
+class LegacyPaymentSystem:
+    def make_payment(self, amount_cents: int) -> str:
+        return f"Legacy: paid {amount_cents} cents"
+
+class ModernPaymentProcessor:
+    def pay(self, amount_dollars: float) -> str:
+        pass
+
+class PaymentAdapter(ModernPaymentProcessor):
+    def __init__(self, legacy: LegacyPaymentSystem):
+        self.legacy = legacy
+
+    def pay(self, amount_dollars: float) -> str:
+        cents = int(amount_dollars * 100)
+        return self.legacy.make_payment(cents)
+
+if __name__ == "__main__":
+    legacy = LegacyPaymentSystem()
+    adapter = PaymentAdapter(legacy)
+
+    print(adapter.pay(19.99))
