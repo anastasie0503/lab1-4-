@@ -1,0 +1,39 @@
+# decorator.py
+from functools import wraps
+import time
+
+class DataFetcher:
+    def fetch(self, key: str) -> str:
+        return f"Data for {key}"
+
+class LoggingDecorator(DataFetcher):
+    def __init__(self, fetcher: DataFetcher):
+        self._fetcher = fetcher
+
+    def fetch(self, key: str) -> str:
+        print(f"[LOG] Fetching {key}")
+        result = self._fetcher.fetch(key)
+        print(f"[LOG] Fetched {key}")
+        return result
+
+class CachingDecorator(DataFetcher):
+    def __init__(self, fetcher: DataFetcher):
+        self._fetcher = fetcher
+        self._cache = {}
+
+    def fetch(self, key: str) -> str:
+        if key in self._cache:
+            print(f"[CACHE] Hit for {key}")
+            return self._cache[key]
+        print(f"[CACHE] Miss for {key}")
+        result = self._fetcher.fetch(key)
+        self._cache[key] = result
+        return result
+
+if __name__ == "__main__":
+    base = DataFetcher()
+    cached = CachingDecorator(base)
+    logged_and_cached = LoggingDecorator(cached)
+
+    print(logged_and_cached.fetch("user:1"))
+    print(logged_and_cached.fetch("user:1"))
