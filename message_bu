@@ -1,0 +1,29 @@
+# message_bus.py
+from typing import Callable, Dict, List
+
+class MessageBus:
+    def __init__(self):
+        self._handlers: Dict[str, List[Callable]] = {}
+
+    def subscribe(self, event_type: str, handler: Callable) -> None:
+        if event_type not in self._handlers:
+            self._handlers[event_type] = []
+        self._handlers[event_type].append(handler)
+
+    def publish(self, event_type: str, data: any) -> None:
+        if event_type in self._handlers:
+            for handler in self._handlers[event_type]:
+                handler(data)
+
+def on_user_registered(data):
+    print(f"Send welcome email to {data['email']}")
+
+def on_user_registered_log(data):
+    print(f"[LOG] User registered: {data['email']}")
+
+if __name__ == "__main__":
+    bus = MessageBus()
+    bus.subscribe("user.registered", on_user_registered)
+    bus.subscribe("user.registered", on_user_registered_log)
+
+    bus.publish("user.registered", {"email": "john@example.com"})
