@@ -1,0 +1,43 @@
+# factory.py
+from abc import ABC, abstractmethod
+
+class Notification(ABC):
+    @abstractmethod
+    def send(self, message: str) -> str:
+        pass
+
+class EmailNotification(Notification):
+    def send(self, message: str) -> str:
+        return f"Email sent: {message}"
+
+class SMSNotification(Notification):
+    def send(self, message: str) -> str:
+        return f"SMS sent: {message}"
+
+class PushNotification(Notification):
+    def send(self, message: str) -> str:
+        return f"Push notification sent: {message}"
+
+class NotificationFactory:
+    @staticmethod
+    def create_notification(notification_type: str) -> Notification:
+        types = {
+            "email": EmailNotification,
+            "sms": SMSNotification,
+            "push": PushNotification,
+        }
+        if notification_type not in types:
+            raise ValueError(f"Unknown type: {notification_type}")
+        return types[notification_type]()
+
+if __name__ == "__main__":
+    factory = NotificationFactory()
+
+    email = factory.create_notification("email")
+    print(email.send("Welcome!"))
+
+    sms = factory.create_notification("sms")
+    print(sms.send("Your code is 123456"))
+
+    push = factory.create_notification("push")
+    print(push.send("New message"))
